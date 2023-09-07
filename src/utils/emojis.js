@@ -12,7 +12,8 @@ const emojis = {
 const isDay = () => {
   let currTime = new Date().getHours();
   let day = true;
-  currTime > 12 ? (day = false) : (day = true);
+
+  currTime > 18 ? (day = false) : (day = true);
 
   return day;
 };
