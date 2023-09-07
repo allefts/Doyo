@@ -41,7 +41,26 @@ body {
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 1px 12px 0 rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.round {
   border-radius: 8px;
+}
+
+.left-round {
+  border-radius: 8px 0 0 8px;
+}
+
+.right-round {
+  border-radius: 0 8px 8px 0;
+}
+
+.glass-card-no-right-side-border {
+  border-right: none;
+}
+
+.glass-card-no-left-side-border {
+  border-left: none;
 }
 
 #weather-card {

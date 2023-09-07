@@ -1,3 +1,5 @@
+import { tempToEmoji } from "../utils/emojis.js";
+
 const weatherTemplate = document.createElement("template");
 
 export class WeatherWidget extends HTMLElement {
@@ -6,6 +8,7 @@ export class WeatherWidget extends HTMLElement {
 
     this.append(weatherTemplate.content.cloneNode(true));
     this.locationData = "No Location";
+    this.currUnit = "F";
   }
 
   async connectedCallback() {
@@ -16,9 +19,10 @@ export class WeatherWidget extends HTMLElement {
       this.locationData = data.success;
       this._processData();
       this._renderWeather();
+      this._initUnits();
+      this.setAttribute("active", "F");
     } else {
-      this.locationData = "No Location";
-
+      this.locationData = "No data";
       this._renderDefault();
     }
   }
@@ -28,7 +32,7 @@ export class WeatherWidget extends HTMLElement {
     const data = await this._getPos();
     if (data.success) {
       const { latitude, longitude } = data.success;
-      const ENDPOINT = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=imperial`;
+      const ENDPOINT = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`;
       const res = await fetch(ENDPOINT, { method: "GET" });
       const weatherData = await res.json();
       if (weatherData.main && weatherData.weather) {
@@ -58,12 +62,13 @@ export class WeatherWidget extends HTMLElement {
     const { main, weather, name, sys, wind } = this.locationData;
     this.weatherData = {
       name: name,
-      temp: Math.floor(main.temp),
-      feelsLike: Math.floor(main.feels_like),
-      minTemp: Math.floor(main.temp_min),
-      maxTemp: Math.floor(main.temp_max),
+      temp: this._handleUnitConversion(Math.floor(main.temp)),
+      feelsLike: this._handleUnitConversion(Math.floor(main.feels_like)),
+      minTemp: this._handleUnitConversion(Math.floor(main.temp_min)),
+      maxTemp: this._handleUnitConversion(Math.floor(main.temp_max)),
       main: weather[0].main,
       description: weather[0].description,
+      icon: `https://openweathermap.org/img/w/${weather[0].icon}.png`,
       country: sys.country,
       sunrise: sys.sunrise,
       sunset: sys.sunset,
@@ -75,20 +80,62 @@ export class WeatherWidget extends HTMLElement {
     return num - 272.15 * (9 / 5) + 32;
   }
 
+  _handleUnitConversion(num) {
+    switch (this.currUnit) {
+      case "F":
+        return Math.floor((num - 273.15) * (9 / 5) + 32);
+      case "C":
+        return Math.floor(num - 273.15);
+    }
+  }
+
+  _initUnits() {
+    this.unit1 = this.querySelector("#unit1");
+    this.unit2 = this.querySelector("#unit2");
+
+    this.unit1.addEventListener("click", () => {
+      this.unit1.classList.add("active");
+      this.unit2.classList.remove("active");
+      this.currUnit = "F";
+    });
+
+    this.unit2.addEventListener("click", () => {
+      this.unit1.classList.remove("active");
+      this.unit2.classList.add("active");
+      this.currUnit = "C";
+    });
+  }
+
+  static get observedAttributes() {
+    return ["active"];
+  }
+
+  attributeChangedCallback(name, oldVal, newVal) {
+    switch (name) {
+      case "active":
+        if (!oldVal) {
+          this.unit1.classList.toggle("active");
+        }
+        break;
+    }
+  }
+
   _renderWeather() {
     this.innerHTML = `
     <style>
       #weather-content {
         width: 100%;
         height: 100%;
-        padding: .5rem;
+        padding: .25rem;
 
         display: flex;
         color: #ccc;
+
+        position: relative;
       }
 
       #weather-content > * {
-        flex: 1 0 33%;
+        flex: 1 0 30%;
       }
 
       #weather-icon-container {
@@ -117,11 +164,42 @@ export class WeatherWidget extends HTMLElement {
       #weather-data-location {
         text-align: center;
       }
+      
+      #weather-unit-toggle {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        border-radius: 8px;
+        width: 50px;
+
+      }
+
+      #weather-unit-toggle > * {
+        flex: 1 0 50%;
+      }
+
+      #unit1, #unit2 {
+        text-align: center;
+        cursor: pointer;
+        transition: all 300ms ease;
+      }
+
+      #unit1:hover, #unit2:hover, .active{
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.2),
+          rgba(255, 255, 255, 0.15)
+        );
+      }
     </style>
 
     <div id="weather-content"> 
       <div id="weather-icon-container">
-        <h1>☀️</h1>
+        <h1>${tempToEmoji(this.weatherData.main)}</h1>
       </div>
       <div id="weather-data-container">
         <div>
@@ -130,7 +208,11 @@ export class WeatherWidget extends HTMLElement {
         </div>
       </div>
       <div id="weather-data-location">
-        <p>${this.weatherData.name} 📍</p>
+        <p>📍 ${this.weatherData.name}</p>
+      </div>
+      <div class="glass-card round" id="weather-unit-toggle">
+         <span class="left-round" id="unit1">&#8457;</span>
+         <span class="right-round" id="unit2">&#8451;</span>
       </div>
     </div>
     `;
