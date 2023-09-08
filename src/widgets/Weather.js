@@ -5,7 +5,6 @@ const weatherTemplate = document.createElement("template");
 export class WeatherWidget extends HTMLElement {
   constructor() {
     super();
-
     this.append(weatherTemplate.content.cloneNode(true));
     this.locationData = "No Location";
     this.currUnit = "F";
@@ -62,10 +61,10 @@ export class WeatherWidget extends HTMLElement {
     const { main, weather, name, sys, wind } = this.locationData;
     this.weatherData = {
       name: name,
-      temp: this._handleUnitConversion(Math.floor(main.temp)),
-      feelsLike: this._handleUnitConversion(Math.floor(main.feels_like)),
-      minTemp: this._handleUnitConversion(Math.floor(main.temp_min)),
-      maxTemp: this._handleUnitConversion(Math.floor(main.temp_max)),
+      temp: main.temp,
+      feelsLike: main.feels_like,
+      minTemp: main.temp_min,
+      maxTemp: main.temp_max,
       main: weather[0].main,
       description: weather[0].description,
       icon: `https://openweathermap.org/img/w/${weather[0].icon}.png`,
@@ -74,10 +73,6 @@ export class WeatherWidget extends HTMLElement {
       sunset: sys.sunset,
       wind: wind.speed,
     };
-  }
-
-  _kTof(num) {
-    return num - 272.15 * (9 / 5) + 32;
   }
 
   _handleUnitConversion(num) {
@@ -92,17 +87,25 @@ export class WeatherWidget extends HTMLElement {
   _initUnits() {
     this.unit1 = this.querySelector("#unit1");
     this.unit2 = this.querySelector("#unit2");
+    this.temp = this.querySelector("#weather-data-temp");
+    this.unit = this.querySelector("#unit");
 
     this.unit1.addEventListener("click", () => {
       this.unit1.classList.add("active");
       this.unit2.classList.remove("active");
+
       this.currUnit = "F";
+      this.temp.textContent = this._handleUnitConversion(this.weatherData.temp);
+      this.unit.innerHTML = "&#8457;";
     });
 
     this.unit2.addEventListener("click", () => {
       this.unit1.classList.remove("active");
       this.unit2.classList.add("active");
+
       this.currUnit = "C";
+      this.temp.textContent = this._handleUnitConversion(this.weatherData.temp);
+      this.unit.innerHTML = "&#8451;";
     });
   }
 
@@ -161,6 +164,10 @@ export class WeatherWidget extends HTMLElement {
         margin-bottom: .25rem;
       }
 
+      #weather-temp-container {
+        display: flex;
+      }
+
       #weather-data-location {
         text-align: center;
       }
@@ -202,9 +209,13 @@ export class WeatherWidget extends HTMLElement {
         <h1>${tempToEmoji(this.weatherData.main)}</h1>
       </div>
       <div id="weather-data-container">
-        <div>
-          <h1 id="weather-data-temp">${this.weatherData.temp}&#8457;</h1> 
-          <p>${this.weatherData.main}</p>
+        <div id="weather-temp-container">
+          <h1 id="weather-data-temp">${this._handleUnitConversion(
+            this.weatherData.temp
+          )}</h1>
+          <span id="unit">${
+            this.currUnit === "F" ? "&#8457;" : "&#8451;"
+          }</span>
         </div>
       </div>
       <div id="weather-data-location">
