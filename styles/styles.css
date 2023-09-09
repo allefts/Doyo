@@ -46,7 +46,9 @@ body {
   grid-column: 1 / 4;
   grid-row: span 4;
   margin: 0.25rem;
-  padding: 0.25rem;
+  padding: 0.5rem;
+
+  overflow: hidden;
 }
 
 .glass-card {
@@ -88,4 +90,20 @@ body {
 
 .glass-card-no-left-side-border {
   border-left: none;
+}
+
+/* ===== Scrollbar CSS ===== */
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  border: 1px solid #ffffff;
 }
