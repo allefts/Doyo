@@ -49,9 +49,11 @@ export class TodoWidget extends HTMLElement {
   _handleCompleteTask(e) {
     const itemId = parseInt(e.target.parentNode.dataset.id);
     const parentElement = e.target.parentNode;
-    const taskElement = parentElement.children[0];
 
-    // taskElement.style.textDecoration = "line-through";
+    //Logic Change
+    this.todosInfo.todos[itemId].done = !this.todosInfo.todos[itemId].done;
+
+    //Styling change
     parentElement.classList.toggle("completedTaskParent");
     parentElement.children[0].classList.toggle("completedTaskChild");
   }
