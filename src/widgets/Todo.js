@@ -50,8 +50,13 @@ export class TodoWidget extends HTMLElement {
     const itemId = parseInt(e.target.parentNode.dataset.id);
     const parentElement = e.target.parentNode;
 
+    const foundItemIdx = this.todosInfo.todos.findIndex(
+      ({ id }) => id === itemId
+    );
+
     //Logic Change
-    this.todosInfo.todos[itemId].done = !this.todosInfo.todos[itemId].done;
+    this.todosInfo.todos[foundItemIdx].done =
+      !this.todosInfo.todos[foundItemIdx].done;
 
     //Styling change
     parentElement.classList.toggle("completedTaskParent");
