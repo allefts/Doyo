@@ -124,7 +124,7 @@ export class TodoWidget extends HTMLElement {
           font-size: 1.5rem;
           text-align: center;
           outline: none;
-          color: #70e000;
+          color: rgba(112, 224, 0, 1);
           cursor: pointer;
           transition: all 300ms ease;
 
@@ -151,7 +151,7 @@ export class TodoWidget extends HTMLElement {
 
         .todo-item {
           color: white;
-          border: 1px solid white;
+          border: 1px solid rgba(255, 255, 255, 0.2);
           list-style: none;
           padding: 0.25rem;
           margin: 0.5rem 0.25rem;
