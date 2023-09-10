@@ -9,6 +9,7 @@ export class TodoWidget extends HTMLElement {
     this.todoInput;
     this.todosContainer;
     this.todoBtn;
+    this.currId = 0;
 
     this.todosInfo = reactive({
       todos: [],
@@ -16,13 +17,50 @@ export class TodoWidget extends HTMLElement {
   }
 
   _addTask() {
-    this.todosInfo.todos.push({ task: this.todoInput.value, done: false });
+    this.todosInfo.todos.push({
+      task: this.todoInput.value,
+      done: false,
+      id: this.currId,
+    });
+
+    this.currId += 1;
   }
 
   _renderTasks() {
-    return this.todosInfo.todos.map(({ task, done }, idx) => {
-      return html`<li class="todo-item round">${task}</li>`;
+    return this.todosInfo.todos.map(({ task, done, id }) => {
+      return html`<li class="todo-item round" data-id=${id}>
+        <span class="task">${task}</span>
+        <button
+          class="round todo-item-btn done-btn"
+          @click="${this._handleCompleteTask.bind(this)}"
+        >
+          ✔️
+        </button>
+        <button
+          class="round todo-item-btn remove-btn"
+          @click="${this._handleRemoveTask.bind(this)}"
+        >
+          ❌
+        </button>
+      </li>`.key(id);
     });
+  }
+
+  _handleCompleteTask(e) {
+    const itemId = parseInt(e.target.parentNode.dataset.id);
+    const parentElement = e.target.parentNode;
+    const taskElement = parentElement.children[0];
+
+    // taskElement.style.textDecoration = "line-through";
+    parentElement.classList.toggle("completedTaskParent");
+    parentElement.children[0].classList.toggle("completedTaskChild");
+  }
+
+  _handleRemoveTask(e) {
+    const itemId = parseInt(e.target.parentNode.dataset.id);
+    this.todosInfo.todos = this.todosInfo.todos.filter(
+      (todo) => todo.id !== itemId
+    );
   }
 
   _submitInput() {
@@ -115,6 +153,38 @@ export class TodoWidget extends HTMLElement {
           list-style: none;
           padding: 0.25rem;
           margin: 0.5rem 0.25rem;
+
+          position: relative;
+          display: flex;
+
+          transition: all 300ms ease;
+        }
+
+        .task {
+          margin-right: auto;
+        }
+
+        .todo-item-btn {
+          border: none;
+          outline: none;
+          background: transparent;
+          cursor: pointer;
+          opacity: 0;
+          margin: 0 0.25rem;
+
+          transition: all 300ms ease;
+        }
+
+        .todo-item-btn:hover {
+          background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.2),
+            rgba(255, 255, 255, 0.15)
+          );
+        }
+
+        .todo-item:hover .todo-item-btn {
+          opacity: 1;
         }
       </style>
 

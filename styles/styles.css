@@ -107,3 +107,11 @@ body {
   border-radius: 10px;
   border: 1px solid #ffffff;
 }
+
+.completedTaskParent {
+  background-color: rgb(112, 224, 0, 0.75);
+}
+
+.completedTaskChild {
+  text-decoration: line-through;
+}
