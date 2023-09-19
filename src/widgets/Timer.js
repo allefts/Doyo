@@ -32,25 +32,22 @@ export class TimerWidget extends HTMLElement {
   }
 
   _handleChangeTime(timeType, e) {
-    if (e.which < 48 || e.which > 57) {
-      e.preventDefault();
-      console.log("Invalid Number...");
-    } else {
-      if (intVal > 59) {
-        e.target.value = 59;
-      } else if (intVal < 0) {
-        e.target.value = 0;
-      }
-
-      console.log(timeType);
-      console.log(this);
-
-      if (timeType === "min") {
-        this.min = e.target.value;
-      } else if (timeType === "sec") {
-        this.sec = e.target.value;
-      }
-    }
+    // if (e.which < 48 || e.which > 57) {
+    //   e.preventDefault();
+    //   console.log("Invalid Number...");
+    // } else {
+    //   const intVal = parseInt(e.target.value);
+    //   if (intVal > 59) {
+    //     e.target.value = 59;
+    //   } else if (intVal < 0) {
+    //     e.target.value = 0;
+    //   }
+    //   if (timeType === "min") {
+    //     this.min = e.target.value;
+    //   } else if (timeType === "sec") {
+    //     this.sec = e.target.value;
+    //   }
+    // }
   }
 
   _renderDefault() {
@@ -81,8 +78,8 @@ export class TimerWidget extends HTMLElement {
 
     <div id="timer-container">
       <div>
-        <input class="glass-card round" id="timer-minute" placeholder="00" type="number" min="0" max="59" step="1"/>
-        <input class="glass-card round" id="timer-second" placeholder="00" type="number" min="0" max="60" step="1"/>
+        <input class="glass-card round" id="timer-minute" placeholder="00" type="number" min="0" max="59" step="1" maxlength="2"/>
+        <input class="glass-card round" id="timer-second" placeholder="00" type="number" min="0" max="60" step="1" maxlength="2"/>
       </div>
       <div>
         <button id="start-stop-btn" >${
