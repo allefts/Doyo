@@ -29,7 +29,7 @@ export class TodoWidget extends HTMLElement {
   _renderTasks() {
     return this.todosInfo.todos.map(({ task, done, id }) => {
       return html`<li class="todo-item round" data-id=${id}>
-        <span class="task">${task}</span>
+        <p class="task">${task}</p>
         <button
           class="round todo-item-btn done-btn"
           @click="${this._handleCompleteTask.bind(this)}"
@@ -161,14 +161,18 @@ export class TodoWidget extends HTMLElement {
           padding: 0.25rem;
           margin: 0.5rem 0.25rem;
 
-          position: relative;
           display: flex;
+
+          position: relative;
 
           transition: all 300ms ease;
         }
 
         .task {
           margin-right: auto;
+
+          word-break: break-word;
+          white-space: normal;
         }
 
         .todo-item-btn {

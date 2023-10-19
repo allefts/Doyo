@@ -1,3 +1,5 @@
+import { reactive, html } from "https://esm.sh/@arrow-js/core";
+
 const timerTemplate = document.createElement("template");
 
 export class TimerWidget extends HTMLElement {
@@ -5,10 +7,13 @@ export class TimerWidget extends HTMLElement {
     super();
     this.append(timerTemplate.content.cloneNode(true));
 
-    this.min = 0;
-    this.sec = 0;
-    this.currState = false;
     this.intervalFunc;
+
+    this.timeLeft = reactive({
+      min: 0,
+      sec: 0,
+      running: false,
+    });
   }
 
   connectedCallback() {
@@ -16,41 +21,62 @@ export class TimerWidget extends HTMLElement {
     this.minuteEl = this.querySelector("#timer-minute");
     this.secondEl = this.querySelector("#timer-second");
     this.startStopButton = this.querySelector("#start-stop-btn");
+    this.clearButton = this.querySelector("#clear-btn");
 
     this.minuteEl.addEventListener("mouseover", () => this.minuteEl.focus());
     this.minuteEl.addEventListener("keypress", (e) => e.preventDefault());
     this.minuteEl.addEventListener(
       "change",
-      (e) => (this.min = e.target.value)
+      (e) => (this.timeLeft.min = parseInt(e.target.value))
     );
 
     this.secondEl.addEventListener("keypress", (e) => e.preventDefault());
     this.secondEl.addEventListener("mouseover", () => this.secondEl.focus());
     this.secondEl.addEventListener(
       "change",
-      (e) => (this.sec = e.target.value)
+      (e) => (this.timeLeft.sec = parseInt(e.target.value))
     );
 
     this.startStopButton.addEventListener(
       "click",
       this.handleStartStop.bind(this)
     );
+    this.startStopButton.style.color = "rgba(112, 224, 0, 1)";
+
+    this.clearButton.addEventListener("click", () => this.clearTimer());
   }
 
   handleStartStop() {
-    if (this.min !== 0 || this.sec !== 0) {
+    if (this.timeLeft.min !== 0 || this.timeLeft.sec !== 0) {
       //Change state Start || Stop
-      this.currState = !this.currState;
-      switch (this.currState) {
+      this.timeLeft.running = !this.timeLeft.running;
+      switch (this.timeLeft.running) {
         case true:
+          this.startStopButton.style.color = "#ED1109";
           this.startTimer();
           break;
         case false:
+          this.startStopButton.style.color = "rgba(112, 224, 0, 1)";
           this.stopTimer();
           break;
       }
     }
-    console.log(this.min, this.sec, this.currState);
+  }
+
+  handleTimeChange() {
+    if (this.timeLeft.sec > 0) {
+      this.timeLeft.sec -= 1;
+    } else if (this.timeLeft.sec === 0) {
+      if (this.timeLeft.min > 0) {
+        this.timeLeft.min -= 1;
+        this.timeLeft.sec = 59;
+      } else if (this.timeLeft.min === 0) {
+        //Timer Finished
+        console.log("Timer Finished");
+        clearInterval(this.intervalFunc);
+      }
+    }
+    // console.log(this.timeLeft.min, this.timeLeft.sec, this.timeLeft.running);
   }
 
   startTimer() {
@@ -58,81 +84,121 @@ export class TimerWidget extends HTMLElement {
     this.intervalFunc = setInterval(this.handleTimeChange.bind(this), 1000);
   }
 
-  handleTimeChange() {
-    if (this.sec > 0) {
-      this.sec -= 1;
-    } else if (this.sec === 0) {
-      if (this.min > 0) {
-        this.min -= 1;
-        this.sec = 59;
-      } else if (this.min === 0) {
-        //Timer Finished
-        console.log("Timer Finished!!");
-        clearInterval(this.intervalFunc);
-      }
-    }
-    console.log(this.min, this.sec);
+  stopTimer() {
+    console.log("Stopping Timer");
+    clearInterval(this.intervalFunc);
   }
 
-  stopTimer() {
+  clearTimer() {
+    console.log("Clearing Timer");
     clearInterval(this.intervalFunc);
-    console.log("Stopping Timer");
+    this.timeLeft.min = 0;
+    this.timeLeft.sec = 0;
+    this.timeLeft.running = false;
   }
 
   finishTimer() {}
 
   _renderDefault() {
-    this.innerHTML = `
-    <style>
-      #timer-container {
-        display: grid;
-        place-items: center;
-        height: 100%;
-      }
+    const timerContent = html`<style>
+        #timer-container {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-around;
+          align-items: center;
+          height: 100%;
+        }
 
-      #timer-inputs {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: .5rem;
-        
-      }
+        #timer-inputs {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0.5rem;
+        }
 
-      #timer-minute, #timer-second {
-        max-width: 75px;
-        color: white;
-        font-size: 3rem;
-        outline: none;
-        border: none;
-        padding: .25rem;
-        text-align: center;
-        caret-color: transparent;
-        // background: transparent;
-      }
+        #timer-minute,
+        #timer-second {
+          max-width: 75px;
+          color: white;
+          font-size: 3rem;
+          outline: none;
+          border: none;
+          padding: 0.25rem;
+          text-align: center;
+          caret-color: transparent;
+          position: relative;
+        }
 
-      input::-webkit-outer-spin-button,
-      input::-webkit-inner-spin-button {
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
           -webkit-appearance: none;
           margin: 0;
-      }
+        }
 
-      input[type=number] {
-        -moz-appearance: textfield;
-      }
-    </style>
+        input[type="number"] {
+          -moz-appearance: textfield;
+        }
 
-    <div id="timer-container">
-      <div id="timer-inputs">
-        <input class="glass-card round" id="timer-minute" placeholder="00" type="number" min="0" max="59" step="1" maxlength="2"/>
-        <input class="glass-card round" id="timer-second" placeholder="00" type="number" min="0" max="60" step="1" maxlength="2"/>
-      </div>
-      <div>
-        <button id="start-stop-btn" >${
-          !this.currState ? "Start" : "Stop"
-        }</button>
-        <button>Clear</button>
-      </div>
-    </div>
-    `;
+        #start-stop-btn,
+        #clear-btn {
+          padding: 4px 8px;
+          color: white;
+          font-size: 0.75rem;
+          font-weight: 500;
+          text-align: center;
+          outline: none;
+          cursor: pointer;
+          transition: all 300ms ease;
+          background: transparent;
+
+          transition: all 300ms ease;
+        }
+
+        #start-stop-btn:hover,
+        #clear-btn:hover {
+          background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.2),
+            rgba(255, 255, 255, 0.15)
+          );
+        }
+      </style>
+
+      <div id="timer-container">
+        <div id="timer-inputs">
+          <input
+            class="glass-card round"
+            id="timer-minute"
+            placeholder="00"
+            type="number"
+            min="0"
+            max="59"
+            step="1"
+            maxlength="2"
+            value="${() => this.timeLeft.min}"
+            disabled="${() => this.timeLeft.running}"
+          />
+          <input
+            class="glass-card round"
+            id="timer-second"
+            placeholder="00"
+            type="number"
+            min="0"
+            max="60"
+            step="1"
+            maxlength="2"
+            value="${() => this.timeLeft.sec}"
+            disabled="${() => this.timeLeft.running}"
+          />
+        </div>
+        <div>
+          <button class="glass-card round" id="start-stop-btn">
+            ${() => (!this.timeLeft.running ? "Start" : "Stop")}
+          </button>
+          <button class="glass-card round" id="clear-btn">Clear</button>
+        </div>
+      </div>`;
+
+    timerContent(this);
   }
 }
