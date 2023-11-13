@@ -16,6 +16,17 @@ export class TodoWidget extends HTMLElement {
     });
   }
 
+  connectedCallback() {
+    //Pre Render
+    this.render();
+    //Post Render
+    this.todoInput = this.querySelector("#todo-input");
+    this.todosContainer = this.querySelector("#todos-container");
+    this.todoBtn = this.querySelector("#todo-input-btn");
+
+    this._submitInput();
+  }
+
   _addTask() {
     this.todosInfo.todos.push({
       task: this.todoInput.value,
@@ -85,17 +96,6 @@ export class TodoWidget extends HTMLElement {
         this.todoBtn.click();
       }
     });
-  }
-
-  connectedCallback() {
-    //Pre Render
-    this.render();
-    //Post Render
-    this.todoInput = this.querySelector("#todo-input");
-    this.todosContainer = this.querySelector("#todos-container");
-    this.todoBtn = this.querySelector("#todo-input-btn");
-
-    this._submitInput();
   }
 
   render() {

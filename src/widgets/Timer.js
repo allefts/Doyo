@@ -95,6 +95,7 @@ export class TimerWidget extends HTMLElement {
     this.timeLeft.min = 0;
     this.timeLeft.sec = 0;
     this.timeLeft.running = false;
+    this.startStopButton.style.color = "rgba(112, 224, 0, 1)";
   }
 
   finishTimer() {}
