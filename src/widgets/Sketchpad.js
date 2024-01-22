@@ -2,12 +2,9 @@ export class SketchpadWidget extends HTMLElement {
   constructor() {
     super();
 
+    this.isDrawing = false;
     this.canvas;
     this.ctx;
-    this.mouse = {
-      x: 0,
-      y: 0,
-    };
   }
 
   connectedCallback() {
@@ -15,53 +12,28 @@ export class SketchpadWidget extends HTMLElement {
     this.canvas = this.querySelector("#sketchpad-canvas");
     this.ctx = this.canvas.getContext("2d");
 
-    this.ctx.strokeStyle = "red";
-
     //Setting mouse coords on move
-    this.canvas.addEventListener(
-      "mousemove",
-      (e) => {
-        this.mouse.x = e.pageX - this.offsetLeft;
-        this.mouse.y = e.pageY - this.offsetTop;
-      },
-      false
-    );
+    this.canvas.addEventListener("mousemove", this.draw);
 
     //Click down to start drawing
-    this.canvas.addEventListener(
-      "mousedown",
-      (e) => {
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.mouse.x, this.mouse.y);
-
-        this.canvas.addEventListener(
-          "mousemove",
-          this.onPaint.bind(this),
-          false
-        );
-      },
-      false
-    );
+    this.canvas.addEventListener("mousedown", (e) => {});
 
     //End Drawing
-    this.canvas.addEventListener(
-      "mouseup",
-      this.canvas.removeEventListener(
-        "mousemove",
-        this.onPaint.bind(this),
-        false
-      ),
-      false
-    );
+    this.canvas.addEventListener("mouseup", (e) => {});
   }
 
-  onPaint() {
-    this.ctx.lineTo(this.mouse.x, this.mouse.y);
-    this.ctx.stroke();
-  }
+  draw(e) {}
 
   render() {
     this.innerHTML = `
+    <style>
+      #sketchpad-canvas {
+        width: 100%;
+        height: 100%;
+        border: 1px solid green;
+      }
+    </style>
+
     <div>
         <div class="toolbar">
             <p>Toolbar</p>
