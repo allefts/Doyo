@@ -24,13 +24,13 @@ export class TimerWidget extends HTMLElement {
     this.clearButton = this.querySelector("#clear-btn");
 
     this.minuteEl.addEventListener("mouseover", () => this.minuteEl.focus());
-    this.minuteEl.addEventListener("keypress", (e) => e.preventDefault());
+    // this.minuteEl.addEventListener("keypress", (e) => e.preventDefault());
     this.minuteEl.addEventListener(
       "change",
       (e) => (this.timeLeft.min = parseInt(e.target.value))
     );
 
-    this.secondEl.addEventListener("keypress", (e) => e.preventDefault());
+    // this.secondEl.addEventListener("keypress", (e) => e.preventDefault());
     this.secondEl.addEventListener("mouseover", () => this.secondEl.focus());
     this.secondEl.addEventListener(
       "change",
@@ -47,7 +47,10 @@ export class TimerWidget extends HTMLElement {
   }
 
   handleStartStop() {
-    if (this.timeLeft.min !== 0 || this.timeLeft.sec !== 0) {
+    if (
+      (this.timeLeft.min !== 0 && isNaN(this.timeLeft.min) !== true) ||
+      (this.timeLeft.sec !== 0 && isNaN(this.timeLeft.sec) !== true)
+    ) {
       //Change state Start || Stop
       this.timeLeft.running = !this.timeLeft.running;
       switch (this.timeLeft.running) {
@@ -76,21 +79,29 @@ export class TimerWidget extends HTMLElement {
         clearInterval(this.intervalFunc);
       }
     }
-    // console.log(this.timeLeft.min, this.timeLeft.sec, this.timeLeft.running);
   }
 
   startTimer() {
-    console.log("Starting Timer");
+    if (this.timeLeft.min > 60) this.timeLeft.min = 60;
+    if (this.timeLeft.sec > 60) this.timeLeft.sec = 60;
+    if (this.timeLeft.min < 0) this.timeLeft.min = 0;
+    if (this.timeLeft.sec < 0) this.timeLeft.sec = 0;
+    if (isNaN(this.timeLeft.sec) || isNaN(this.timeLeft.min)) {
+      this.timeLeft.sec = 0;
+      this.timeLeft.min = 0;
+      return;
+    }
+
     this.intervalFunc = setInterval(this.handleTimeChange.bind(this), 1000);
   }
 
   stopTimer() {
-    console.log("Stopping Timer");
+    // console.log("Stopping Timer");
     clearInterval(this.intervalFunc);
   }
 
   clearTimer() {
-    console.log("Clearing Timer");
+    // console.log("Clearing Timer");
     clearInterval(this.intervalFunc);
     this.timeLeft.min = 0;
     this.timeLeft.sec = 0;

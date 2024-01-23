@@ -58,6 +58,13 @@ body {
   padding: 0.5rem;
 }
 
+#sketchpad-card {
+  grid-row: 1 / 5;
+  grid-column: 7 / 12;
+  margin: 0.25rem;
+  padding: 0.5rem;
+}
+
 .glass-card {
   background: linear-gradient(
     135deg,
