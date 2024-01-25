@@ -2,20 +2,28 @@ export class SketchpadWidget extends HTMLElement {
   constructor() {
     super();
 
+    this.isDrawing = false;
+    this.strokeColor = "#ffffff";
+    this.timelineArr = [];
+    this.timelineStep = -1;
+
     this.prevX;
     this.prevY;
-    this.isDrawing = false;
     this.canvas;
     this.ctx;
     this.clearBtn;
-
+    this.downloadBtn;
+    this.undoBtn;
+    this.redoBtn;
     this.strokeThickness;
-    this.strokeColor = "#ffffff";
   }
 
   connectedCallback() {
     this.render();
     this.clearBtn = this.querySelector("#clear-btn");
+    this.downloadBtn = this.querySelector("#download-btn");
+    this.redoBtn = this.querySelector("#redo-btn");
+    this.undoBtn = this.querySelector("#undo-btn");
     this.canvas = this.querySelector("#sketchpad-canvas");
     this.colorPicker = this.querySelector("#color-picker");
     this.strokeThickness = this.querySelector("#thickness-inpt");
@@ -23,9 +31,19 @@ export class SketchpadWidget extends HTMLElement {
     this.canvas.height = this.canvas.clientHeight;
     this.ctx = this.canvas.getContext("2d");
 
+    this.downloadBtn.addEventListener("click", (e) => {
+      const link = document.createElement("a");
+      link.download = "sketchpad.png";
+      link.href = this.canvas.toDataURL();
+      link.click();
+      link.delete;
+    });
+
     this.clearBtn.addEventListener("click", (e) => {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     });
+
+    this.undoBtn.addEventListener("click", this.undo.bind(this));
 
     this.colorPicker.addEventListener("change", (e) => {
       this.ctx.strokeColor = e.target.value;
@@ -41,9 +59,14 @@ export class SketchpadWidget extends HTMLElement {
       this.prevY = e.offsetY;
     });
 
-    //End Drawing
+    //End Stroke
     this.canvas.addEventListener("mouseup", (e) => {
       this.isDrawing = false;
+
+      this.timelineStep++;
+      if (this.timelineStep < this.timelineArr.length)
+        this.timelineArr.length = this.timelineStep;
+      this.timelineArr.push(this.canvas.toDataURL());
     });
   }
 
@@ -51,6 +74,8 @@ export class SketchpadWidget extends HTMLElement {
     if (!this.isDrawing) {
       return;
     }
+
+    if (e.offsetX === 441) this.isDrawing = !this.isDrawing;
 
     this.ctx.beginPath();
     this.ctx.moveTo(this.prevX, this.prevY);
@@ -65,6 +90,18 @@ export class SketchpadWidget extends HTMLElement {
     this.prevY = e.offsetY;
   }
 
+  undo() {
+    if (this.timelineStep > 0) {
+      this.timelineStep--;
+      let newPic = new Image();
+      newPic.src = this.timelineArr[this.timelineStep];
+      newPic.onload = () => {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.drawImage(newPic, 0, 0);
+      };
+    }
+  }
+
   render() {
     this.innerHTML = `
     <style>
@@ -72,10 +109,7 @@ export class SketchpadWidget extends HTMLElement {
         display: flex;
         justify-content: space-between;
         margin-bottom: .5rem;
-      }
-
-      #clear-btn {
-
+        flex-flow: row wrap;
       }
 
       .container {
@@ -98,11 +132,12 @@ export class SketchpadWidget extends HTMLElement {
 
     <div class="container">
         <div class="toolbar">
-        <div>
           <input id="thickness-inpt" type="range" min="1" max="11" value="6"/>
-          <input class="glass-card" id="color-picker" type="color" value="#ffffff"/>
-        </div>
-        <button class="glass-card round" id="clear-btn">Clear</button>
+          <input class="glass-card" id="color-picker" type="color" value="#ffffff "/>
+          <button class="glass-card round btn" id="undo-btn">Undo</button>
+          <button class="glass-card round btn" id="redo-btn">Redo</button>
+          <button class="glass-card round btn" id="clear-btn">Clear</button>
+          <button class="glass-card round btn" id="download-btn">Download</button>
         </div>
         <div class="sketchpad">
             <canvas class="glass-card round" id="sketchpad-canvas"></canvas>
