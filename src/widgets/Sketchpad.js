@@ -14,7 +14,6 @@ export class SketchpadWidget extends HTMLElement {
     this.clearBtn;
     this.downloadBtn;
     this.undoBtn;
-    this.redoBtn;
     this.strokeThickness;
   }
 
@@ -22,7 +21,6 @@ export class SketchpadWidget extends HTMLElement {
     this.render();
     this.clearBtn = this.querySelector("#clear-btn");
     this.downloadBtn = this.querySelector("#download-btn");
-    this.redoBtn = this.querySelector("#redo-btn");
     this.undoBtn = this.querySelector("#undo-btn");
     this.canvas = this.querySelector("#sketchpad-canvas");
     this.colorPicker = this.querySelector("#color-picker");
@@ -41,6 +39,8 @@ export class SketchpadWidget extends HTMLElement {
 
     this.clearBtn.addEventListener("click", (e) => {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.timelineStep = -1;
+      this.timelineArr = [];
     });
 
     this.undoBtn.addEventListener("click", this.undo.bind(this));
@@ -112,6 +112,10 @@ export class SketchpadWidget extends HTMLElement {
         flex-flow: row wrap;
       }
 
+      #undo-btn, #clear-btn, #download-btn {
+        font-size: .9rem;
+      }
+
       .container {
         width: 100%;
         height: 100%;
@@ -134,10 +138,9 @@ export class SketchpadWidget extends HTMLElement {
         <div class="toolbar">
           <input id="thickness-inpt" type="range" min="1" max="11" value="6"/>
           <input class="glass-card" id="color-picker" type="color" value="#ffffff "/>
-          <button class="glass-card round btn" id="undo-btn">Undo</button>
-          <button class="glass-card round btn" id="redo-btn">Redo</button>
-          <button class="glass-card round btn" id="clear-btn">Clear</button>
-          <button class="glass-card round btn" id="download-btn">Download</button>
+          <button class="glass-card round btn" id="undo-btn">↺</button>
+          <button class="glass-card round btn" id="clear-btn">🗑️</button>
+          <button class="glass-card round btn" id="download-btn">💾</button>
         </div>
         <div class="sketchpad">
             <canvas class="glass-card round" id="sketchpad-canvas"></canvas>
