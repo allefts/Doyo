@@ -65,6 +65,13 @@ body {
   padding: 0.5rem;
 }
 
+#crypto-card {
+  grid-row: 3 / 5;
+  grid-column: 4 / 7;
+  margin: 0.25rem;
+  padding: 0.5rem;
+}
+
 .glass-card {
   background: linear-gradient(
     135deg,
