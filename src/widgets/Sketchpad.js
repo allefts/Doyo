@@ -112,10 +112,6 @@ export class SketchpadWidget extends HTMLElement {
         flex-flow: row wrap;
       }
 
-      #undo-btn, #clear-btn, #download-btn {
-        font-size: .9rem;
-      }
-
       .container {
         width: 100%;
         height: 100%;
