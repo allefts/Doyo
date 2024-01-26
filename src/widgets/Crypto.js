@@ -4,19 +4,34 @@ export class CryptoWidget extends HTMLElement {
   constructor() {
     super();
     this.append(cryptoTemplate.content.cloneNode(true));
+
+    this.coinPrices = [];
   }
 
   async connectedCallback() {
     this.renderDefault();
-    const data = await this.getCrypto();
+    await this.getCrypto();
   }
 
   async getCrypto() {
-    const KEY = "";
-    const ENDPOINT = "";
+    const KEY = "k73Ay5xhvZmOcsGM+3HC7g==qxXJC2A6cphr41IW";
+    const SYMBOLS = ["BTCUSD", "ETHUSD", "LTCUSD", "DOGEUSD"];
+    const ENDPOINT = "https://api.api-ninjas.com/v1/cryptoprice?symbol=BTCUSD";
 
-    // const res = fetch(ENDPOINT, {});
-    // console.log(res);
+    const res = await fetch(ENDPOINT, {
+      headers: { "X-Api-Key": KEY },
+    });
+    const data = await res.json();
+
+    if (!data.symbol) {
+      this.renderDefault();
+    } else {
+      this.coinPrices.push({
+        symbol: data.symbol,
+        price: Math.floor(data.price),
+      });
+    }
+
     return;
   }
 
