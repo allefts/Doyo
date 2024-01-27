@@ -8,6 +8,8 @@ export class CryptoWidget extends HTMLElement {
     this.coinPrices = [];
     this.currentCoin = {};
     this.cryptoBtns = [];
+    this.renderPrice;
+    this.renderSymbol;
     this.activeBtn;
   }
 
@@ -15,14 +17,19 @@ export class CryptoWidget extends HTMLElement {
     this.renderDefault();
     await this.getCrypto();
     this.cryptoBtns = document.querySelectorAll(".crypto-btn");
+    this.renderPrice = document.querySelector(".current-price");
+    this.renderSymbol = document.querySelector(".current-symbol");
     this.activeBtn = this.cryptoBtns[0];
 
     this.cryptoBtns.forEach((btn, idx) => {
       btn.addEventListener("click", (e) => {
+        console.log("Clicked");
         this.activeBtn.classList.toggle("crypto-active");
         this.activeBtn = e.target;
         this.activeBtn.classList.toggle("crypto-active");
         this.currentCoin = this.coinPrices[idx];
+        this.renderSymbol.textContent = this.currentCoin.symbol;
+        this.renderPrice.textContent = this.currentCoin.price;
       });
     });
   }
@@ -121,8 +128,8 @@ export class CryptoWidget extends HTMLElement {
           <span class="crypto-btn" id="ltc-btn">LTC</span>
         </div>
         <div id="crypto-info">
-          <h5>${this.currentCoin.symbol}</h5>
-          <h3>${this.currentCoin.price}</h3>
+          <h5 class="current-symbol">${this.currentCoin.symbol}</h5>
+          <h3 class="current-price">${this.currentCoin.price}</h3>
         </div>
     </div>
     `;
