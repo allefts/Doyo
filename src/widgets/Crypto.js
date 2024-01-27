@@ -28,8 +28,11 @@ export class CryptoWidget extends HTMLElement {
         this.activeBtn = e.target;
         this.activeBtn.classList.toggle("crypto-active");
         this.currentCoin = this.coinPrices[idx];
-        this.renderSymbol.textContent = this.currentCoin.symbol;
-        this.renderPrice.textContent = this.currentCoin.price;
+        this.renderSymbol.textContent = this.currentCoin.symbol.replace(
+          "USD",
+          ""
+        );
+        this.renderPrice.innerHTML = this.currentCoin.price;
       });
     });
   }
@@ -71,13 +74,36 @@ export class CryptoWidget extends HTMLElement {
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
+          justify-content: space-around;
         }
 
         #crypto-toolbar {
           text-align: center;
           display: flex;
           justify-content: center;
+        }
+
+        #crypto-info {
+          flex: 1 1 60%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .current-symbol {
+
+        }
+
+        .current-price: {
+          position: relative;
+        }
+        
+        .current-price:before {
+          position: absolute;
+          content: "$";
+          color: green;
+          left: 25%;
         }
 
         .crypto-active {
@@ -122,15 +148,17 @@ export class CryptoWidget extends HTMLElement {
     </style>
 
     <div id="crypto-content">
+        <h3 class="current-symbol">${this.currentCoin.symbol.replace(
+          "USD",
+          ""
+        )}</h3>
+        <h1 class="current-price">${this.currentCoin.price}</h1>
         <div class="glass-card round" id="crypto-toolbar">
-          <span class="crypto-btn crypto-active" id="btc-btn">BTC</span>
-          <span class="crypto-btn" id="eth-btn">ETH</span>
-          <span class="crypto-btn" id="ltc-btn">LTC</span>
-        </div>
-        <div id="crypto-info">
-          <h5 class="current-symbol">${this.currentCoin.symbol}</h5>
-          <h3 class="current-price">${this.currentCoin.price}</h3>
-        </div>
+        <span class="crypto-btn crypto-active" id="btc-btn">BTC</span>
+        <span class="crypto-btn" id="eth-btn">ETH</span>
+        <span class="crypto-btn" id="ltc-btn">LTC</span>
+      </div>
+
     </div>
     `;
   }
